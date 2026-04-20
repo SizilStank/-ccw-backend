@@ -9,7 +9,7 @@ const PRODUCTS = [
   { name: "Ocean Explorers Giant Coloring Tablecloth", handle: "ocean-coloring-tablecloth", themes: ["ocean and sea creatures", "school-age kids", "everyday family meals"] },
   { name: "Fishers of Men Giant Coloring Tablecloth", handle: "armor-of-god-faith-based-coloring-tablecloth", themes: ["faith-based scripture art", "faith or church event"] },
   { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", themes: ["faith-based scripture art", "faith or church event", "everyday family meals"] },
-  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250", themes: ["patriotic America theme", "holiday dinner", "a mix of all ages"] },
+  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", themes: ["patriotic America theme", "holiday dinner", "a mix of all ages"] },
   { name: "Birthday Bash Giant Coloring Tablecloth", handle: "happy-birthday-coloring-collage-table-cover", themes: ["birthday party", "school-age kids", "a mix of all ages"] },
   { name: "Ice Cream Dreams Giant Coloring Tablecloth", handle: "ice-cream-coloring-poster", themes: ["everyday family meals", "birthday party", "toddlers and young kids"] },
   { name: "Pumpkin Patch Giant Coloring Tablecloth", handle: "pumpkin-patch-coloring-table-cover", themes: ["holiday dinner", "farm animals and nature", "a mix of all ages"] },
