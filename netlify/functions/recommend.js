@@ -1,31 +1,50 @@
 // netlify/functions/recommend.js
-// Proxies quiz answers to Claude API and returns a personalized product recommendation.
 // Env vars required: ANTHROPIC_API_KEY
 
 const PRODUCTS = [
   // TOP SELLERS — theme-based, work for birthday AND everyday
-  { name: "Farm Themed Coloring Tablecloth", handle: "farm-themed-coloring-table-cover", themes: ["farm animals", "farm", "animals", "birthday party", "everyday family fun"] },
-  { name: "Construction Birthday Coloring Tablecloth", handle: "construction-birthday-coloring-tablecloth", themes: ["construction", "trucks", "building", "birthday party", "everyday family fun", "school-age kids"] },
-  { name: "Dog Party Coloring Tablecloth", handle: "dog-party-coloring-tablecloth", themes: ["dogs", "puppies", "pets", "animals", "birthday party", "everyday family fun", "toddlers and young kids"] },
-  { name: "Sweet Birthday Coloring Tablecloth", handle: "sweet-birthday-coloring-tablecloth", themes: ["sweets", "ice cream", "candy", "birthday party", "everyday family fun", "toddlers and young kids"] },
-  { name: "Football Coloring Tablecloth", handle: "football-coloring-tablecloth", themes: ["football", "sports", "birthday party", "everyday family fun", "school-age kids"] },
-  { name: "Dino Adventure Giant Coloring Tablecloth", handle: "personalized-dinosaur-birthday-coloring-poster", themes: ["dinosaurs", "dinos", "adventure", "birthday party", "everyday family fun", "school-age kids"] },
-  { name: "Princess Fantasy Giant Coloring Tablecloth", handle: "princess-birthday-table-cover-personalized", themes: ["princess", "fantasy", "unicorn", "birthday party", "everyday family fun", "toddlers and young kids"] },
-  { name: "Ocean Explorers Giant Coloring Tablecloth", handle: "ocean-coloring-tablecloth", themes: ["ocean", "sea", "fish", "fishing", "birthday party", "everyday family fun", "school-age kids"] },
-  { name: "Ice Cream Dreams Giant Coloring Tablecloth", handle: "ice-cream-coloring-poster", themes: ["ice cream", "sweets", "candy", "birthday party", "everyday family fun", "toddlers and young kids"] },
+  { name: "Farm Themed Coloring Tablecloth", handle: "farm-themed-coloring-table-cover", keywords: ["farm", "animals", "animal", "cow", "horse", "pig"] },
+  { name: "Construction Birthday Coloring Tablecloth", handle: "construction-birthday-coloring-tablecloth", keywords: ["construction", "trucks", "truck", "building", "digger"] },
+  { name: "Dog Party Coloring Tablecloth", handle: "dog-party-coloring-tablecloth", keywords: ["dog", "dogs", "puppy", "puppies", "pets", "pet"] },
+  { name: "Sweet Birthday Coloring Tablecloth", handle: "sweet-birthday-coloring-tablecloth", keywords: ["sweet", "candy", "sweets", "dessert", "cake"] },
+  { name: "Football Coloring Tablecloth", handle: "football-coloring-tablecloth", keywords: ["football", "sports", "sport", "soccer", "ball"] },
+  { name: "Dino Adventure Giant Coloring Tablecloth", handle: "personalized-dinosaur-birthday-coloring-poster", keywords: ["dino", "dinosaur", "dinosaurs", "dinos", "adventure", "t-rex"] },
+  { name: "Princess Fantasy Giant Coloring Tablecloth", handle: "princess-birthday-table-cover-personalized", keywords: ["princess", "fantasy", "unicorn", "fairy", "magic", "castle"] },
+  { name: "Ocean Explorers Giant Coloring Tablecloth", handle: "ocean-coloring-tablecloth", keywords: ["ocean", "sea", "fish", "fishing", "mermaid", "beach"] },
+  { name: "Ice Cream Dreams Giant Coloring Tablecloth", handle: "ice-cream-coloring-poster", keywords: ["ice cream", "icecream", "sweets", "dessert", "treats"] },
 
-  // HOLIDAY — occasion-specific
-  { name: "Christmas Coloring Tablecloth", handle: "color-you-own-christmas-table-cover", themes: ["Christmas", "holiday dinner"] },
-  { name: "Thanksgiving Coloring Tablecloth", handle: "color-your-own-thanksgiving-table-cover", themes: ["Thanksgiving", "holiday dinner"] },
-  { name: "Pumpkin Patch Coloring Tablecloth", handle: "pumpkin-patch-coloring-tablecloth", themes: ["Halloween", "fall", "pumpkin", "holiday dinner"] },
-  { name: "Easter Party Bundle", handle: "easter-party-coloring-bundle", themes: ["Easter", "holiday dinner", "faith or church event"] },
-  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", themes: ["4th of July", "patriotic", "holiday dinner"] },
+  // HOLIDAY
+  { name: "Christmas Coloring Tablecloth", handle: "color-you-own-christmas-table-cover", keywords: ["christmas", "xmas", "santa", "winter holiday"] },
+  { name: "Thanksgiving Coloring Tablecloth", handle: "color-your-own-thanksgiving-table-cover", keywords: ["thanksgiving", "turkey", "harvest", "november"] },
+  { name: "Pumpkin Patch Coloring Tablecloth", handle: "pumpkin-patch-coloring-tablecloth", keywords: ["halloween", "pumpkin", "fall harvest", "autumn", "october"] },
+  { name: "Easter Party Bundle", handle: "easter-party-coloring-bundle", keywords: ["easter", "spring", "bunny", "eggs"] },
+  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", keywords: ["4th of july", "patriotic", "america", "independence", "july"] },
 
   // FAITH
-  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "fishers-of-men-coloring-tablecloth", themes: ["faith", "scripture", "fishing", "faith or church event"] },
-  { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", themes: ["faith", "scripture", "faith or church event", "everyday family fun"] },
-  { name: "Baptism Coloring Tablecloth", handle: "baptism-coloring-tablecloth", themes: ["baptism", "christening", "faith", "faith or church event"] },
+  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "fishers-of-men-coloring-tablecloth", keywords: ["fishers", "faith", "scripture", "church", "bible"] },
+  { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", keywords: ["fruit of the spirit", "faith", "scripture", "spirit"] },
+  { name: "Baptism Coloring Tablecloth", handle: "baptism-coloring-tablecloth", keywords: ["baptism", "christening", "communion"] },
 ];
+
+// Rule-based matching — guaranteed fallback if AI fails
+function findBestMatch(occasion, who, theme) {
+  const searchStr = `${occasion} ${who} ${theme}`.toLowerCase();
+  let bestProduct = null;
+  let bestScore = 0;
+  for (const product of PRODUCTS) {
+    let score = 0;
+    for (const keyword of product.keywords) {
+      if (searchStr.includes(keyword.toLowerCase())) {
+        score += keyword.length;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestProduct = product;
+    }
+  }
+  return bestProduct || PRODUCTS[0];
+}
 
 export async function handler(event) {
   const headers = {
@@ -52,29 +71,31 @@ export async function handler(event) {
   const { occasion, who, theme } = body;
 
   if (!occasion || !who || !theme) {
+    console.error("Missing fields:", JSON.stringify({ occasion, who, theme }));
     return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing required fields" }) };
   }
 
   const productList = PRODUCTS.map(p => `- ${p.name} (handle: ${p.handle})`).join("\n");
+  const fallbackProduct = findBestMatch(occasion, who, theme);
 
-  const prompt = `You are the product recommender for Creative Crayons Workshop, which sells giant coloring tablecloths (5ft x 3.5ft). The whole table becomes a coloring canvas — kids and families color together at birthday parties, holiday dinners, and everyday meals.
+  const prompt = `You are the product recommender for Creative Crayons Workshop, which sells giant coloring tablecloths (5ft x 3.5ft). The whole table becomes a coloring canvas for birthday parties, holiday dinners, and everyday family meals.
 
-Key insight: 90% of our tablecloths are used for birthday parties. Even everyday themes like Farm, Dog, and Construction are top birthday sellers. Always lean toward the theme the customer picked — the occasion matters less than what they are into.
+Key rule: Always match the theme the customer picked. Never recommend a holiday product unless the occasion is a specific holiday.
 
 Our product line:
 ${productList}
 
-A customer just completed a quiz:
+Customer quiz answers:
 - Occasion: ${occasion}
-- Who will be coloring: ${who}
-- Theme they picked: ${theme}
+- Who is coloring: ${who}
+- Theme: ${theme}
 
-Pick the single best product. Prioritize theme match above all else. If their theme does not exactly match a product, pick the closest one. Never recommend a holiday product unless the occasion is a specific holiday.
+Respond ONLY with a raw JSON object. No markdown. No backticks. No explanation. Just the JSON.
 
-Respond ONLY with a JSON object (no markdown, no backticks, no preamble) with exactly three fields:
-- "name": the product name exactly as listed above
-- "handle": the handle exactly as listed above
-- "why": 2 warm sentences (max 55 words) explaining why this is perfect. Reference the theme and who is coloring. Sound like a friendly brand mom, not a robot. Use "you" and "your family."`;
+{
+  "name": "<product name exactly as listed above>",
+  "why": "<2 warm sentences, max 55 words, use you and your family>"
+}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -92,32 +113,42 @@ Respond ONLY with a JSON object (no markdown, no backticks, no preamble) with ex
     });
 
     if (!res.ok) {
-      throw new Error(`Anthropic API error: ${res.status}`);
+      const errText = await res.text();
+      console.error("Anthropic API error:", res.status, errText);
+      throw new Error("Anthropic API error: " + res.status);
     }
 
     const data = await res.json();
-    const raw = data.content?.find(b => b.type === "text")?.text || "{}";
-    const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    const raw = data.content?.find(b => b.type === "text")?.text || "";
+    console.log("AI raw response:", raw);
+
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    if (!parsed.name) throw new Error("AI response missing name field");
+
+    // Always look up the handle from our list — never trust the AI to return it correctly
+    const matched = PRODUCTS.find(p => p.name === parsed.name) || fallbackProduct;
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        name: parsed.name || "Giant Coloring Tablecloth",
-        handle: parsed.handle || "",
-        why: parsed.why || "We think this one is a perfect fit for your next gathering!",
+        name: matched.name,
+        handle: matched.handle,
+        why: parsed.why || "We think your family will love this one!",
       }),
     };
+
   } catch (err) {
-    console.error("Recommend error:", err);
-    // Fallback — still return something useful
+    console.error("Using rule-based fallback. Error:", err.message);
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        name: "Giant Coloring Tablecloth",
-        handle: "",
-        why: "Based on your answers, we've found the perfect tablecloth for your family! Grab 10% off your first order below.",
+        name: fallbackProduct.name,
+        handle: fallbackProduct.handle,
+        why: "Based on your answers, we think your family will love this one! Grab 10% off your first order below.",
       }),
     };
   }
