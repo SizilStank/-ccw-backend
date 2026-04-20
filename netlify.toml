@@ -1,0 +1,11 @@
+# netlify.toml — place at the root of your Netlify repo
+
+[build]
+  functions = "netlify/functions"
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin  = "https://creativecrayonsworkshop.com"
+    Access-Control-Allow-Methods = "POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
