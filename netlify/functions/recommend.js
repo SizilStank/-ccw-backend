@@ -3,22 +3,33 @@
 // Env vars required: ANTHROPIC_API_KEY
 
 const PRODUCTS = [
-  { name: "Farm Friends Giant Coloring Tablecloth", handle: "farm-themed-coloring-table-cover", themes: ["farm animals and nature", "everyday family meals", "toddlers and young kids"] },
-  { name: "Dino Adventure Giant Coloring Tablecloth", handle: "personalized-dinosaur-birthday-coloring-poster", themes: ["dinosaurs and adventure", "school-age kids", "birthday party"] },
-  { name: "Princess Fantasy Giant Coloring Tablecloth", handle: "princess-birthday-table-cover-personalized", themes: ["princess and fantasy", "toddlers and young kids", "birthday party"] },
-  { name: "Ocean Explorers Giant Coloring Tablecloth", handle: "ocean-coloring-tablecloth", themes: ["ocean and sea creatures", "school-age kids", "everyday family meals"] },
-  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "armor-of-god-faith-based-coloring-tablecloth", themes: ["faith-based scripture art", "faith or church event"] },
-  { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", themes: ["faith-based scripture art", "faith or church event", "everyday family meals"] },
-  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", themes: ["patriotic America theme", "holiday dinner", "a mix of all ages"] },
-  { name: "Birthday Bash Giant Coloring Tablecloth", handle: "happy-birthday-coloring-collage-table-cover", themes: ["birthday party", "school-age kids", "a mix of all ages"] },
-  { name: "Ice Cream Dreams Giant Coloring Tablecloth", handle: "ice-cream-coloring-poster", themes: ["everyday family meals", "birthday party", "toddlers and young kids"] },
-  { name: "Pumpkin Patch Giant Coloring Tablecloth", handle: "pumpkin-patch-coloring-table-cover", themes: ["holiday dinner", "farm animals and nature", "a mix of all ages"] },
-  { name: "Christmas Joy Giant Coloring Tablecloth", handle: "color-you-own-christmas-table-cover", themes: ["holiday dinner", "faith or church event", "a mix of all ages"] },
+  // TOP SELLERS — theme-based, work for birthday AND everyday
+  { name: "Farm Themed Coloring Tablecloth", handle: "farm-themed-coloring-table-cover", themes: ["farm animals", "farm", "animals", "birthday party", "everyday family fun"] },
+  { name: "Construction Birthday Coloring Tablecloth", handle: "construction-birthday-coloring-tablecloth", themes: ["construction", "trucks", "building", "birthday party", "everyday family fun", "school-age kids"] },
+  { name: "Dog Party Coloring Tablecloth", handle: "dog-party-coloring-tablecloth", themes: ["dogs", "puppies", "pets", "animals", "birthday party", "everyday family fun", "toddlers and young kids"] },
+  { name: "Sweet Birthday Coloring Tablecloth", handle: "sweet-birthday-coloring-tablecloth", themes: ["sweets", "ice cream", "candy", "birthday party", "everyday family fun", "toddlers and young kids"] },
+  { name: "Football Coloring Tablecloth", handle: "football-coloring-tablecloth", themes: ["football", "sports", "birthday party", "everyday family fun", "school-age kids"] },
+  { name: "Dino Adventure Giant Coloring Tablecloth", handle: "personalized-dinosaur-birthday-coloring-poster", themes: ["dinosaurs", "dinos", "adventure", "birthday party", "everyday family fun", "school-age kids"] },
+  { name: "Princess Fantasy Giant Coloring Tablecloth", handle: "princess-birthday-table-cover-personalized", themes: ["princess", "fantasy", "unicorn", "birthday party", "everyday family fun", "toddlers and young kids"] },
+  { name: "Ocean Explorers Giant Coloring Tablecloth", handle: "ocean-coloring-tablecloth", themes: ["ocean", "sea", "fish", "fishing", "birthday party", "everyday family fun", "school-age kids"] },
+  { name: "Ice Cream Dreams Giant Coloring Tablecloth", handle: "ice-cream-coloring-poster", themes: ["ice cream", "sweets", "candy", "birthday party", "everyday family fun", "toddlers and young kids"] },
+
+  // HOLIDAY — occasion-specific
+  { name: "Christmas Coloring Tablecloth", handle: "color-you-own-christmas-table-cover", themes: ["Christmas", "holiday dinner"] },
+  { name: "Thanksgiving Coloring Tablecloth", handle: "color-your-own-thanksgiving-table-cover", themes: ["Thanksgiving", "holiday dinner"] },
+  { name: "Pumpkin Patch Coloring Tablecloth", handle: "pumpkin-patch-coloring-tablecloth", themes: ["Halloween", "fall", "pumpkin", "holiday dinner"] },
+  { name: "Easter Party Bundle", handle: "easter-party-coloring-bundle", themes: ["Easter", "holiday dinner", "faith or church event"] },
+  { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", themes: ["4th of July", "patriotic", "holiday dinner"] },
+
+  // FAITH
+  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "fishers-of-men-coloring-tablecloth", themes: ["faith", "scripture", "fishing", "faith or church event"] },
+  { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", themes: ["faith", "scripture", "faith or church event", "everyday family fun"] },
+  { name: "Baptism Coloring Tablecloth", handle: "baptism-coloring-tablecloth", themes: ["baptism", "christening", "faith", "faith or church event"] },
 ];
 
 export async function handler(event) {
   const headers = {
-    "Access-Control-Allow-Origin": "https://creativecrayonsworkshop.com",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "Content-Type": "application/json",
   };
@@ -46,22 +57,24 @@ export async function handler(event) {
 
   const productList = PRODUCTS.map(p => `- ${p.name} (handle: ${p.handle})`).join("\n");
 
-  const prompt = `You are the product recommender for Creative Crayons Workshop, which sells giant coloring tablecloths (5ft x 3.5ft) and matching placemat packs. These are beloved for family gatherings, parties, and activities because the whole table becomes a coloring canvas.
+  const prompt = `You are the product recommender for Creative Crayons Workshop, which sells giant coloring tablecloths (5ft x 3.5ft). The whole table becomes a coloring canvas — kids and families color together at birthday parties, holiday dinners, and everyday meals.
 
-Our current product line:
+Key insight: 90% of our tablecloths are used for birthday parties. Even everyday themes like Farm, Dog, and Construction are top birthday sellers. Always lean toward the theme the customer picked — the occasion matters less than what they are into.
+
+Our product line:
 ${productList}
 
 A customer just completed a quiz:
 - Occasion: ${occasion}
 - Who will be coloring: ${who}
-- Theme preference: ${theme}
+- Theme they picked: ${theme}
 
-Based on their answers, select the single best product from the list above and write a warm, specific recommendation.
+Pick the single best product. Prioritize theme match above all else. If their theme does not exactly match a product, pick the closest one. Never recommend a holiday product unless the occasion is a specific holiday.
 
 Respond ONLY with a JSON object (no markdown, no backticks, no preamble) with exactly three fields:
 - "name": the product name exactly as listed above
 - "handle": the handle exactly as listed above
-- "why": 2 warm, enthusiastic sentences (max 55 words) explaining why this is perfect for them. Reference the occasion and who is coloring. Sound like a friendly brand, not a robot. Use "you" and "your family."`;
+- "why": 2 warm sentences (max 55 words) explaining why this is perfect. Reference the theme and who is coloring. Sound like a friendly brand mom, not a robot. Use "you" and "your family."`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
