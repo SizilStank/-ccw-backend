@@ -5,7 +5,7 @@
 
 export async function handler(event) {
   const headers = {
-    "Access-Control-Allow-Origin": "https://creativecrayonsworkshop.com",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "Content-Type": "application/json",
   };
