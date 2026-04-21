@@ -1,6 +1,6 @@
 // netlify/functions/subscribe.js
 // Subscribes an email to Klaviyo, tags with quiz answers and AI recommendation,
-// and triggers a welcome flow with a 10% discount.
+// and triggers a welcome flow with a discount.
 // Env vars required: KLAVIYO_PRIVATE_KEY, KLAVIYO_LIST_ID, KLAVIYO_DISCOUNT_CODE (optional)
 
 export async function handler(event) {
@@ -39,12 +39,22 @@ export async function handler(event) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: "Server configuration error" }) };
   }
 
-  // Build the Klaviyo profile with custom quiz properties
+  // Build the Klaviyo profile with consent + custom quiz properties
   const profilePayload = {
     data: {
       type: "profile",
       attributes: {
         email,
+        subscriptions: {
+          email: {
+            marketing: {
+              consent: "SUBSCRIBED",
+              consent_timestamp: new Date().toISOString(),
+              method: "Automatic",
+              method_detail: "CCW AI Quiz Popup",
+            },
+          },
+        },
         properties: {
           quiz_occasion: occasion || "",
           quiz_who: who || "",
@@ -53,8 +63,7 @@ export async function handler(event) {
           quiz_recommended_handle: recommendedHandle || "",
           quiz_completed: true,
           quiz_completed_at: new Date().toISOString(),
-          discount_code: process.env.KLAVIYO_DISCOUNT_CODE || "WELCOME10",
-          // Shopify product URL — used in Klaviyo flow email template
+          discount_code: process.env.KLAVIYO_DISCOUNT_CODE || "WELCOME20",
           quiz_product_url: recommendedHandle
             ? `https://creativecrayonsworkshop.com/products/${recommendedHandle}`
             : "https://creativecrayonsworkshop.com/collections/all",
@@ -106,7 +115,7 @@ export async function handler(event) {
       headers,
       body: JSON.stringify({
         success: true,
-        discountCode: process.env.KLAVIYO_DISCOUNT_CODE || "WELCOME10",
+        discountCode: process.env.KLAVIYO_DISCOUNT_CODE || "WELCOME20",
       }),
     };
   } catch (err) {
