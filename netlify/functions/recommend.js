@@ -16,12 +16,12 @@ const PRODUCTS = [
   // HOLIDAY
   { name: "Christmas Coloring Tablecloth", handle: "color-you-own-christmas-table-cover", keywords: ["christmas", "xmas", "santa", "winter holiday"] },
   { name: "Thanksgiving Coloring Tablecloth", handle: "color-your-own-thanksgiving-table-cover", keywords: ["thanksgiving", "turkey", "harvest", "november"] },
-  { name: "Pumpkin Patch Coloring Tablecloth", handle: "pumpkin-patch-coloring-tablecloth", keywords: ["halloween", "pumpkin", "fall harvest", "autumn", "october"] },
+  { name: "Pumpkin Patch Coloring Tablecloth", handle: "pumpkin-patch-coloring-table-cover", keywords: ["halloween", "pumpkin", "fall harvest", "autumn", "october"] },
   { name: "Easter Party Bundle", handle: "easter-party-coloring-bundle", keywords: ["easter", "spring", "bunny", "eggs"] },
   { name: "America 250 Giant Coloring Tablecloth", handle: "america-250-coloring-tablecloth", keywords: ["4th of july", "patriotic", "america", "independence", "july"] },
 
   // FAITH
-  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "fishers-of-men-coloring-tablecloth", keywords: ["fishers", "faith", "scripture", "church", "bible"] },
+  { name: "Fishers of Men Giant Coloring Tablecloth", handle: "armor-of-god-faith-based-coloring-tablecloth", keywords: ["fishers", "faith", "scripture", "church", "bible"] },
   { name: "Fruit of the Spirit Giant Coloring Tablecloth", handle: "fruit-of-the-spirit-coloring-tablecloth", keywords: ["fruit of the spirit", "faith", "scripture", "spirit"] },
   { name: "Baptism Coloring Tablecloth", handle: "baptism-coloring-tablecloth", keywords: ["baptism", "christening", "communion"] },
 ];
